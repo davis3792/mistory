@@ -34,7 +34,7 @@ app.use(function(err, req, res, next) {
   res.status(500).send('Something broke!');
 });
 
-var port = process.env.VCAP_APP_PORT || 3001;
+var port = process.env.API_PORT || 3001;
 app.listen(port, function() {
     console.log('server listening on port ' + port);
 });
