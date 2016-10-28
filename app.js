@@ -22,12 +22,19 @@ consign()
 
 console.log("consigned");
 
+app.use(function(req, res, next) {
+        next({
+                "errorCode": 404,
+                "errorMessage": 'There is nothing here o_0'
+        });
+});
+
 app.use(function(err, req, res, next) {
   console.error(err.stack);
   res.status(500).send('Something broke!');
 });
 
-var port = 3001;
+var port = process.env.VCAP_APP_PORT || 3001;
 app.listen(port, function() {
     console.log('server listening on port ' + port);
 });
