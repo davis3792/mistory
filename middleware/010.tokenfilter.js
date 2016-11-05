@@ -2,8 +2,8 @@ var allowAnonymousAccess = [
         "/user/login", "/health", "/sp/.*"
 ];
 
-module.exports = function(app) {
-        app.use(function(req, res, next) {
+module.exports = function(context) {
+        context.app.use(function(req, res, next) {
                 var allowAnonymous = false;
 
                 for (var i = 0; i < allowAnonymousAccess.length; i++) {
@@ -15,7 +15,7 @@ module.exports = function(app) {
                 if (allowAnonymous) {
                         next();
                 } else {
-                        app.models.security.hasValidToken(req)
+                        context.models.security.hasValidToken(req)
                                 .then(function(res) {
                                         if(res === true)  {
                                                 next();

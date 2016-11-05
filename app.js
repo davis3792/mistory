@@ -2,8 +2,11 @@ var express = require('express');
 var consign = require('consign');
 var requestLogger = require('./lib/requestLogger');
 var errorUtil = require('./lib/errorUtil');
+var cors = require('cors');
  
 var app = express();
+
+app.use(cors());
 
 /*
 var router = express.Router();
@@ -12,13 +15,15 @@ app.use('/api/v0', router);
 console.log(errorUtil.inspectAll(router));
 */
 
+var context = {};
+context.app = app;
 
 consign()
   .include('middleware')
   .then('models')
   .then('controllers')
   .then('routers')
-  .into(app);
+  .into(context);
 
 console.log("consigned");
 

@@ -1,6 +1,7 @@
-module.exports = function(app) {
+module.exports = function(context) {
 
-  var shows = app.controllers.shows;
+  var shows = context.controllers.shows;
+  var app   = context.app;
 
   app.get('/api/v1/shows', shows.search);
   app.get('/api/v1/shows/:id', shows.findById);

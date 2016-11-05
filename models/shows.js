@@ -6,7 +6,7 @@ var querystring = require('querystring');
 
 //request.debug=true;
 
-module.exports = function(app) {
+module.exports = function(context) {
 
 	this.findById = function(id) {
 		return getShowURL('?i=' + id);
@@ -21,8 +21,7 @@ module.exports = function(app) {
 	};
 
 	this.search = function(query) {
-		console.log(query);
-		
+
 		var omdbQueryObj = {};
 		var queryKeys = Object.keys(query);
 		//Object.keys(query).forEach(function(k) {

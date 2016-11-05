@@ -3,8 +3,8 @@ var createNamespace = require('continuation-local-storage').createNamespace;
 
 var namespace = createNamespace('mistory');
 
-module.exports = function(app) {
-        app.use(function(req, res, next) {
+module.exports = function(context) {
+        context.app.use(function(req, res, next) {
                 var tid = uuid.v4();
 
                 namespace.bindEmitter(req);

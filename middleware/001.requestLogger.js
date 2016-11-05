@@ -1,8 +1,8 @@
 var logger = require('../lib/logger');
 var onFinished = require('on-finished');
 
-module.exports = function(app) {
-        app.use(function(req, res, next) {
+module.exports = function(context) {
+        context.app.use(function(req, res, next) {
                 req._startAt = process.hrtime();
                 logger.info("Incoming request " + req.method + " " + req.url);
 

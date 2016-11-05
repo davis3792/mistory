@@ -2,9 +2,9 @@ var Q = require('kew');
 var logger = require('../lib/logger');
 var querystring = require('querystring');
 
-module.exports = function(app) {
+module.exports = function(context) {
 
-	var shows = app.models.shows;
+	var shows = context.models.shows;
 
 	this.findById = function(req, res, next) {
 

@@ -4,7 +4,7 @@ var logger = require('../lib/logger.js');
 var errorUtil = require('../lib/errorUtil.js');
 
 
-module.exports = function(app) {
+module.exports = function(context) {
 
         this.hasValidToken = function(req) {
 		return _verifyAuthorizationHeader(req);
@@ -15,7 +15,6 @@ module.exports = function(app) {
 
 function _verifyAuthorizationHeader(req) {
 
-	console.log(req.headers.authorization);
 	if(!req.headers.authorization) {
 		logger.error("No Auth header");
 		return Q.resolve(false);
