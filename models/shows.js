@@ -40,7 +40,15 @@ module.exports = function(context) {
 		}
 
 		var omdbQuery = querystring.stringify(omdbQueryObj);
-		return getShowURL('?'+omdbQuery);
+
+		return getShowURL('?'+omdbQuery)
+		.then(function (res) {
+			console.log(res);
+			return Q.resolve(res.Search);
+		})
+		.fail(function(err) {
+			return Q.reject(err);
+		});
 	};
 
 	return this;
