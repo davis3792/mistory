@@ -3,10 +3,13 @@ var consign = require('consign');
 var requestLogger = require('./lib/requestLogger');
 var errorUtil = require('./lib/errorUtil');
 var cors = require('cors');
+var dbinit = require('./lib/dbinit.js');
+var body_parser = require('body-parser');
  
 var app = express();
 
 app.use(cors());
+app.use(body_parser.json());
 
 /*
 var router = express.Router();
@@ -18,28 +21,41 @@ console.log(errorUtil.inspectAll(router));
 var context = {};
 context.app = app;
 
-consign()
-  .include('middleware')
-  .then('models')
-  .then('controllers')
-  .then('routers')
-  .into(context);
+dbinit()
+.then(function(db) {
+	context.db = db;
 
-console.log("consigned");
+	consign()
+	  .include('middleware')
+	  .then('models')
+	  .then('controllers')
+	  .then('routers')
+	  .into(context);
 
-app.use(function(req, res, next) {
-        next({
-                "errorCode": 404,
-                "errorMessage": 'There is nothing here o_0'
-        });
-});
+	console.log("consigned");
 
-app.use(function(err, req, res, next) {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
-});
+	app.use(function(req, res, next) {
+		next({
+			"errorCode": 404,
+			"errorMessage": 'There is nothing here o_0'
+		});
+	});
 
-var port = process.env.API_PORT || 3001;
-app.listen(port, function() {
-    console.log('server listening on port ' + port);
-});
+	app.use(function(err, req, res, next) {
+		// we only get here if next is called with an error
+		if (err) {
+                	var e = errorUtil.handleError(err);
+                	res.status(e.errorCode).json(e);
+        	}
+	});
+
+	var port = process.env.API_PORT || 3001;
+	app.listen(port, function() {
+	    console.log('server listening on port ' + port);
+	});
+
+})
+.fail(function(err) {
+	errorUtil.fatalError(err);
+})
+.done();

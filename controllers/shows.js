@@ -42,6 +42,7 @@ module.exports = function(context) {
 
 	this.search = function(req, res, next) {
 
+		console.log("search=",shows.search);
 		shows.search(req.query)
 		.then(function(results) {
 			res.status(200).json(results);
