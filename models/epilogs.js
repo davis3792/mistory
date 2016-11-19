@@ -4,22 +4,11 @@ var logger = require('../lib/logger.js');
 var errorUtil = require('../lib/errorUtil.js');
 var querystring = require('querystring');
 var MongoDB = require('mongodb');
-var mongoLong = MongoDB.Long;
 
-var cn = 'Users';
+var cn = 'Epilogs';
 
 module.exports = function(context) {
 
-
-	/*
-	var userSchema = new context.lib.dbinit.mongoose.Schema({
-		email: String,
-		nickName: String,
-		createdOn: Date,
-		modifiedOn: Date,
-		deleted: Boolean
-	});
-	*/
 
 	this.create = function(req) {
 
@@ -28,28 +17,38 @@ module.exports = function(context) {
 		// There should be a better way to handle this but haven't seen it yet.
 		var defer = Q.defer();
 
-		var _etag = mongoLong.fromNumber(new Date().getTime());
+		var body = req.body;
 
-		var newUser = {
-			nickName: req.body.nickName,
-			email: req.body.email,
-			status: req.body.status,
+		var _etag = MongoDB.Long.fromNumber(new Date().getTime());
+
+		var newEpilog = {
+			source: body.source,
+			userId: 1,
+			nickName: body.nickName,
+			title: body.title,
+			detail: body.detail,
+			status: body.status,
+			avgRating: 0,
 			_etag: _etag
 		}
 
-		context.db.collection(cn).insertOne(newUser, {fullResult:true})
+		context.db.collection(cn).insertOne(newEpilog, {fullResult:true})
 		.then(function(mongoRes) {
 			// not sure if this is the right way to extract the payload posted from the response
 			var r = mongoRes.ops[0];
-			var newUserRes = {
+			var newEpilogRes = {
 				id: r._id,
-				etag: r._etag.toString(10),
+				source: r.source,
+				userId: r.userId,
 				nickName: r.nickName,
-				email: r.email,
-				status: r.status
+				title: r.title,
+				detail: r.detail,
+				status: r.status,
+				avgRating: r.avgRating,
+				etag: r._etag.toString(10),
 			}
 
-			defer.resolve(newUserRes);
+			defer.resolve(newEpilogRes);
 		})
 		.catch(function(err) {
 			defer.reject(err);
@@ -67,10 +66,14 @@ module.exports = function(context) {
 			if (mongoRes) {
 				var res = {
 					id: id,
-					etag: mongoRes._etag,
+					source: mongoRes.source,
+					userId: mongoRes.userId,
 					nickName: mongoRes.nickName,
-					email: mongoRes.email,
-					status: mongoRes.status
+					title: mongoRes.title,
+					detail: mongoRes.detail,
+					status: mongoRes.status,
+					avgRating: mongoRes.avgRating,
+					etag: mongoRes._etag,
 				}
 				return defer.resolve(res);
 			} else {
@@ -94,11 +97,9 @@ module.exports = function(context) {
                 for (var i = 0; i<queryKeys.length ; i++) {
                         var k = queryKeys[i];
                         switch(k) {
+                                case "source.Title": 
+                                        break;
                                 case "nickName": 
-                                        break;
-                                case "email": 
-                                        break;
-                                case "status": 
                                         break;
                                 default:
                                         return Q.reject(errorUtil.myError(400, "Invalid query string parameter: " + k));
@@ -110,13 +111,17 @@ module.exports = function(context) {
 			var res;
 			if (mongoRes) {
 				console.log("mongoRes=", mongoRes);
-				res = mongoRes.map(function(user) {
+				res = mongoRes.map(function(epilog) {
 					return {
-						id: user._id,
-						etag: user._etag,
-						nickName: user.nickName,
-						email: user.email,
-						status: user.status
+						id: epilog._id,
+						etag: epilog._etag,
+						source: epilog.source,
+						userId: epilog.userId,
+						nickName: epilog.nickName,
+						title: epilog.title,
+						detail: epilog.detail,
+						status: epilog.status,
+						avgRating: epilog.avgRating,
 					}
 				});
 				return defer.resolve(res);
@@ -134,9 +139,6 @@ module.exports = function(context) {
 
 	};
 
-	this.findByName = function(name) {
-		return 1;
-	};
 
 	this.remove = function(id) {
 		var defer = Q.defer();
@@ -159,19 +161,23 @@ module.exports = function(context) {
 	this.update = function(etag, id, body) {
 		var defer = Q.defer();
 
-		var _etag = mongoLong.fromNumber(etag);
+		var _etag = MongoDB.Long.fromNumber(etag);
 		var _id = MongoDB.ObjectId(id);
 
-		var updateUser = {
+		var updateEpilog = {
+			source: body.source,
+			userId: body.userId,
 			nickName: body.nickName,
-			email: body.email,
-			status: body.status
+			title: body.title,
+			detail: body.detail,
+			status: body.status,
+			avgRating: body.avgRating
 		};
 
 		context.db.collection(cn).findAndModify(
 				{"_id":_id, "_etag": _etag},   // filter/search criteria
 				{}, // sort (unspecified) 
-				{$set: updateUser, $inc: {_etag:1}},  // data to be updated.  increment the etag
+				{$set: updateEpilog, $inc: {_etag:1}},  // data to be updated.  increment the etag
 				{new:true})  // return the post update data
 		.then(function(mongoRes) {
 			console.log("mongoRes=", mongoRes);
@@ -179,14 +185,19 @@ module.exports = function(context) {
 				var le = mongoRes.lastErrorObject;
 
 				if (le && le.updatedExisting === true && le.n === 1) {
-					var updatedUserRes = {
+					var updatedEpilogRes = {
 						id: mongoRes.value._id,
 						etag: mongoRes.value._etag,
+						source: mongoRes.value.source,
+						userId: mongoRes.value.userId,
 						nickName: mongoRes.value.nickName,
-						email: mongoRes.value.email,
-						status: mongoRes.value.status
+						title: mongoRes.value.title,
+						detail: mongoRes.value.detail,
+						status: mongoRes.value.status,
+						avgRating: mongoRes.value.avgRating,
 					}
-					return defer.resolve(updatedUserRes);
+					console.log("updatedEpilogRes=", updatedEpilogRes);
+					return defer.resolve(updatedEpilogRes);
 				} else {
 					// determine why put failed (record missing or etag mismatch?)
 					context.db.collection(cn).findOne({_id:MongoDB.ObjectId(id)})

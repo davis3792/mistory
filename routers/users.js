@@ -5,6 +5,7 @@ module.exports = function(context) {
 
   app.post(  '/api/v1/users',     users.create);
   app.get(   '/api/v1/users/:id', users.findById);
+  app.get(   '/api/v1/users', 	  users.find);
   app.put(   '/api/v1/users/:id', users.update);
   app.delete('/api/v1/users/:id', users.delete);
 	/*

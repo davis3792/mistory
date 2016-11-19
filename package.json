@@ -6,8 +6,9 @@
   "scripts": {
     "start": "node app.js",
     "start-dev": "nodemon -e js,json app.js",
+    "start-expressdebug": "export DEBUG='express:*' & nodemon -e js,json app.js",
     "start-debug": "node --inspect --debug-brk app.js",
-    "start-devdb": "mongod -vvv --config /usr/local/etc/mongod.conf"
+    "start-devdb": "mongod --config /usr/local/etc/mongod.conf"
   },
   "author": "",
   "license": "ISC",

@@ -4,13 +4,13 @@ var querystring = require('querystring');
 
 module.exports = function(context) {
 
-	var users = context.models.users;
+	var epilogs = context.models.epilogs;
 
 	this.create = function(req, res, next) {
 
-		console.log("controller: req.body",req.body);
+		//console.log("controller: req.body",req.body);
 
-		return users.create(req)
+		return epilogs.create(req)
 		.then(function(results) { 
 			res.set('Content-Location', req.path + "/" + results.id);
 			res.set('ETag', results.etag);
@@ -26,7 +26,7 @@ module.exports = function(context) {
 
 	this.findById = function(req, res, next) {
 
-		return users.findById(req.params.id)
+		return epilogs.findById(req.params.id)
 		.then(function(results) {
 			res.set('Content-Location', req.path);
 			res.set('ETag', results.etag);
@@ -44,7 +44,7 @@ module.exports = function(context) {
 
 		console.log("controller req.query:", req.query);
 
-		return users.find(req.query)
+		return epilogs.find(req.query)
 		.then(function(results) {
 			res.set('Content-Location', req.path);
 			res.set('ETag', results.etag);
@@ -60,10 +60,9 @@ module.exports = function(context) {
 
 	this.delete = function(req, res, next) {
 
-		return users.remove(req.params.id)
+		return epilogs.remove(req.params.id)
 		.then(function(results) {
 			res.status(204).end();
-			//res.status(204).end();
 		})
 		.fail(function(err) {
 			next(err);
@@ -73,47 +72,19 @@ module.exports = function(context) {
 
 	this.update = function(req, res, next) {
 
-		return users.update(req.headers.etag, req.params.id, req.body)
+		return epilogs.update(req.headers.etag, req.params.id, req.body)
 		.then(function(results) {
 			res.set('Content-Location', req.path);
 			res.set('ETag', results.etag);
 			delete results.id;
 			delete results.etag;
 			res.status(200).json(results);
-			//res.status(204).end();
 		})
 		.fail(function(err) {
 			next(err);
 		})
 		.done();
 	};
-
-
-	/*
-	this.findByNickName = function(req, res, next) {
-
-		shows.findByIdSeason(req.params.id, req.params.season)
-		.then(function(results) {
-			res.status(200).json(results);
-		})
-		.fail(function(err) {
-			res.status(err.errorCode).json(err);
-		})
-		.done();
-	};
-
-	this.search = function(req, res, next) {
-
-		shows.search(req.query)
-		.then(function(results) {
-			res.status(200).json(results);
-		})
-		.fail(function(err) {
-			res.status(err.errorCode).json(err);
-		})
-		.done();
-	};
-	*/
 
 	return this;
 };
