@@ -92,20 +92,42 @@ module.exports = function(context) {
 	this.find = function(query) {
 		var defer = Q.defer();
 
+		var ftsearch = false;
+		var fieldMatch = false;
+
 		console.log("query:",query);
                 var queryKeys = Object.keys(query);
                 for (var i = 0; i<queryKeys.length ; i++) {
                         var k = queryKeys[i];
                         switch(k) {
+                                case "search": 
+					ftsearch = true;
+                                        break;
                                 case "source.Title": 
+					fieldMatch = true;
                                         break;
                                 case "nickName": 
+					fieldMatch = true;
+                                        break;
+                                case "status": 
+					fieldMatch = true;
                                         break;
                                 default:
                                         return Q.reject(errorUtil.myError(400, "Invalid query string parameter: " + k));
                         }
                 }
 
+		if (ftsearch && fieldMatch) {
+			logger.info("Can not mix full text search and field matching");
+			return Q.reject(errorUtil.myError(400, "Can not mix full text search and field matching"));
+		}
+
+		if (ftsearch) {
+			var searchValue = query.search;
+			query = { "$text": { "$search": searchValue}}; 
+		}
+
+		console.log("query=", query);
 		context.db.collection(cn).find(query).toArray()
 		.then(function(mongoRes) {
 			var res;
