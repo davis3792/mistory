@@ -13,6 +13,7 @@ module.exports = function(context) {
 		return epilogs.create(req)
 		.then(function(results) { 
 			res.set('Content-Location', req.path + "/" + results.id);
+			res.set('Access-Control-Expose-Headers', 'ETag');
 			res.set('ETag', results.etag);
 			delete results.id;
 			delete results.etag;
@@ -29,6 +30,7 @@ module.exports = function(context) {
 		return epilogs.findById(req.params.id)
 		.then(function(results) {
 			res.set('Content-Location', req.path);
+			res.set('Access-Control-Expose-Headers', 'ETag');
 			res.set('ETag', results.etag);
 			delete results.id;
 			delete results.etag;
@@ -47,6 +49,7 @@ module.exports = function(context) {
 		return epilogs.find(req.query)
 		.then(function(results) {
 			res.set('Content-Location', req.path);
+			res.set('Access-Control-Expose-Headers', 'ETag');
 			res.set('ETag', results.etag);
 			delete results.id;
 			delete results.etag;
@@ -75,6 +78,7 @@ module.exports = function(context) {
 		return epilogs.update(req.headers.etag, req.params.id, req.body)
 		.then(function(results) {
 			res.set('Content-Location', req.path);
+			res.set('Access-Control-Expose-Headers', 'ETag');
 			res.set('ETag', results.etag);
 			delete results.id;
 			delete results.etag;
